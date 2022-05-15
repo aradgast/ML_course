@@ -78,14 +78,14 @@ print("=" * 80)
 X = diabetes_X_train
 y = diabetes_y_train
 
+
 # train: init
 n = len(X)
 W = np.zeros((np.shape(X)[1],))
 b = 0
 
-learning_rate = 0.01  # after testing 0.001, 0.01, 0.1, 0.3,0.5,0.6,0.7,0.75,0.8,0.9 -> 0.99 was with the best results,
-# after 230,000 iteration the MSE converge so i decreased it to 0.5 for another 70,000 iterations.
-epochs = 300000  # run it on a large number(10^6)
+learning_rate = 0.99  # after testing, I decided to start with 0.99 and reduce by 10% after every 20,000 iterations.
+epochs = 150000  # after checking for a large number(10^6), after 150,000 the MSE didn't change that much.
 
 # train: gradient descent
 for i in range(epochs):
@@ -99,8 +99,8 @@ for i in range(epochs):
     # calculate gradients
     D_b = (2 / n) * np.sum(err)
     D_w = (2 / n) * np.dot(err, X)
-    # if i == 230000:
-    #     learning_rate = 0.5
+    if (i % 20000 == 0):
+        learning_rate *= 0.9
     # update parameters
     b -= learning_rate * D_b
     W -= learning_rate * D_w
@@ -108,11 +108,11 @@ for i in range(epochs):
     # diagnostic output
     if i % 5000 == 0:
         print("Epoch %d: %f" % (i, mean_squared_error))
-        print('test MSE = ', metrics.mean_squared_error(diabetes_y_test, np.dot(diabetes_X_test, W) + b))
 
 y_pred_test = np.dot(diabetes_X_test, W) + b
 MSE = metrics.mean_squared_error(diabetes_y_test, y_pred_test)
 
 print(f'Coefficients W :\n {W}')
 print(f'and b is :\n {b}')
-print(f'MSE for test data is {MSE}') # mse = 2004.566959207182
+print(f'MSE for test data is {MSE}') # mse = 2004.109845299707
+
