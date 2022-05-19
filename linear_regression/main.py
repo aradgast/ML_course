@@ -1,6 +1,6 @@
 import numpy as np
 from sklearn import datasets, linear_model, metrics
-
+import time
 # Overview:
 #
 # To predict the progression of diabetes in patients, we will use linear regression with gradient descent in this
@@ -78,7 +78,6 @@ print("=" * 80)
 X = diabetes_X_train
 y = diabetes_y_train
 
-
 # train: init
 n = len(X)
 W = np.zeros((np.shape(X)[1],))
@@ -86,7 +85,7 @@ b = 0
 
 learning_rate = 0.99  # after testing, I decided to start with 0.99 and reduce by 10% after every 20,000 iterations.
 epochs = 150000  # after checking for a large number(10^6), after 150,000 the MSE didn't change that much.
-
+t1 = time.time()
 # train: gradient descent
 for i in range(epochs):
     # calculate predictions
@@ -110,9 +109,24 @@ for i in range(epochs):
         print("Epoch %d: %f" % (i, mean_squared_error))
 
 y_pred_test = np.dot(diabetes_X_test, W) + b
+time_gradient = time.time()-t1
 MSE = metrics.mean_squared_error(diabetes_y_test, y_pred_test)
 
 print(f'Coefficients W :\n {W}')
 print(f'and b is :\n {b}')
-print(f'MSE for test data is {MSE}') # mse = 2004.109845299707
+print(f'MSE for test data is: {MSE}') # mse = 2004.109845299707
+print('the time it takes:', time_gradient, '[sec]')
 
+print('='*80)
+print('Least square solution')
+t2 = time.time()
+new_X = np.insert(X,0, np.ones((1,422)), axis=1)
+new_X_test = np.insert(diabetes_X_test,0, np.ones((1,20)), axis=1)
+test1 = np.linalg.pinv(new_X)
+theta = np.matmul(test1, np.reshape(y, (422,1)))
+y_pred_test1 = np.dot(new_X_test, theta)
+time_least_squares = time.time()-t2
+MSE = metrics.mean_squared_error(diabetes_y_test, y_pred_test1)
+print('the coefficients are:\n', theta)
+print('the MSE is:', MSE)
+print('the time it takes:', time_least_squares, '[sec]')
